@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'foodflow-app'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['foodflow-app:8087']
+        # If running via docker-compose, use the service name above.
+        # If running locally without Docker, use: ['localhost:8087']

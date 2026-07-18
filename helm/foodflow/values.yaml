@@ -1,0 +1,26 @@
+replicaCount: 2
+
+image:
+  repository: engrshahzaman09/foodflow
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 8087
+
+mysql:
+  storage: 2Gi
+
+secrets:
+  mysqlRootPassword: "changeme"
+  jwtSecret: "changeme"
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

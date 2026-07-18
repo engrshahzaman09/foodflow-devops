@@ -1,0 +1,58 @@
+---
+- name: Configure server and deploy FoodFlow app
+  hosts: foodflow_servers
+  become: true
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install prerequisite packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+        state: present
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: docker-ce
+        update_cache: yes
+        state: present
+
+    - name: Ensure Docker service is running
+      service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Pull FoodFlow app image
+      community.docker.docker_image:
+        name: "engrshahzaman09/foodflow:latest"
+        source: pull
+
+    - name: Run FoodFlow app container
+      community.docker.docker_container:
+        name: foodflow-app
+        image: "engrshahzaman09/foodflow:latest"
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "8087:8087"
+        env:
+          SPRING_DATASOURCE_URL: "jdbc:mysql://{{ mysql_host }}:3306/foodflow"
+          SPRING_DATASOURCE_USERNAME: "root"
+          SPRING_DATASOURCE_PASSWORD: "{{ mysql_password }}"

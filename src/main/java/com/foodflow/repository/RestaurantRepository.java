@@ -1,0 +1,7 @@
+package com.foodflow.repository;
+
+import com.foodflow.entity.Restaurant;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
+}
