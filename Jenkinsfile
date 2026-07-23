@@ -22,13 +22,13 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'mvn clean compile'
+                bat 'mvn clean compile'
             }
         }
 
         stage('Test') {
             steps {
-                sh 'mvn test'
+                bat 'mvn test'
             }
             post {
                 always {
@@ -39,28 +39,28 @@ pipeline {
 
         stage('Package') {
             steps {
-                sh 'mvn package -DskipTests'
+                bat 'mvn package -DskipTests'
             }
         }
 
         stage('Docker Build') {
             steps {
-                sh "docker build -t ${DOCKER_IMAGE}:${IMAGE_TAG} -t ${DOCKER_IMAGE}:latest ."
+                bat 'wsl bash -c "cd /mnt/c/ProgramData/Jenkins/.jenkins/workspace/FoodFlow-Pipeline && docker build -t %DOCKER_IMAGE%:%IMAGE_TAG% -t %DOCKER_IMAGE%:latest ."'
             }
         }
 
         stage('Docker Push') {
             steps {
-                sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
-                sh "docker push ${DOCKER_IMAGE}:${IMAGE_TAG}"
-                sh "docker push ${DOCKER_IMAGE}:latest"
+                bat 'wsl bash -c "echo %DOCKERHUB_CREDENTIALS_PSW% | docker login -u %DOCKERHUB_CREDENTIALS_USR% --password-stdin"'
+                bat 'wsl bash -c "docker push %DOCKER_IMAGE%:%IMAGE_TAG%"'
+                bat 'wsl bash -c "docker push %DOCKER_IMAGE%:latest"'
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                sh "kubectl set image deployment/foodflow-app foodflow-app=${DOCKER_IMAGE}:${IMAGE_TAG} --namespace=foodflow"
-                sh "kubectl rollout status deployment/foodflow-app --namespace=foodflow"
+                bat 'wsl bash -c "sudo k3s kubectl set image deployment/foodflow-app foodflow-app=%DOCKER_IMAGE%:%IMAGE_TAG% --namespace=foodflow"'
+                bat 'wsl bash -c "sudo k3s kubectl rollout status deployment/foodflow-app --namespace=foodflow"'
             }
         }
     }
@@ -73,7 +73,7 @@ pipeline {
             echo 'Pipeline failed. Check logs above.'
         }
         always {
-            sh 'docker logout'
+            bat 'wsl bash -c "docker logout" || exit 0'
         }
     }
 }
