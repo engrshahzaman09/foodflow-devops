@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 pipeline {
     agent any
 
@@ -136,4 +136,4 @@ pipeline {
         }
     }
 }
->>>>>>> 8c98289 (Add application.properties and update Jenkins pipeline)
+
